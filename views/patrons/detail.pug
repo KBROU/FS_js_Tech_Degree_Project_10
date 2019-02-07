@@ -1,0 +1,34 @@
+extends ../layout
+
+block content
+  h1= 'Patron: ' + patron.first_name + ' ' + patron.last_name
+  
+  include ../errors
+    
+  form(action="/patrons/" + patron.id + "?_method=PUT", method="post")
+    include form
+      input(type='submit' value='Update')
+          
+  h2 Loan History
+  table
+    thead
+      tr
+        th Book
+        th Patron 
+        th Loaned on
+        th Return by 
+        th Returned on
+        th Action
+    tbody
+      each loan in loans
+        tr
+          td
+            a(href='book_detail.html')= loan.Book.title
+          td
+            a(href='patron_detail.html')= patron.first_name + ' ' + patron.last_name
+          td= loan.loaned_on
+          td= loan.return_by
+          td
+          td
+            a.button(href='return_book.html') Return Book
+      
