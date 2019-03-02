@@ -1,29 +1,47 @@
 'use strict';
 const Sequelize = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
+  let getToday = (value) => {
+    const localDateFormat = (new Date()).toLocaleDateString('sq-AL',
+    {year: "numeric", month: "2-digit", day: "2-digit"});
+
+    if(value != localDateFormat) {
+      throw new Error ("Today's Date is required" + " " + localDateFormat)
+    }
+  };
   const Loans = sequelize.define('Loans', {
     book_id: DataTypes.INTEGER,
     patron_id: DataTypes.INTEGER,
     loaned_on: {
       type: DataTypes.DATEONLY,
-      get: function() {
-         return dateFormat(this.loaned_on, "yyyy-mm-dd");
-      },
       validate: {
-        notEmpty: {
-          msg: "Today's Date is required"
+        isDate: {
+          msg: "Date format is required"
+        },
+        isToday(value) {
+          return getToday(value);
         }
       }
     },
     return_by: {
       type: Sequelize.DATEONLY,
       validate: {
-        notEmpty: {
-          msg: "Date seven days from today is required"
+        isDate: {
+          msg: "A valid date is required for Return by"
         }
       }
     },
-    returned_on: DataTypes.DATE
+    returned_on:{
+      type: DataTypes.DATEONLY,
+      validate: {
+        isDate: {
+          msg: "Date format is required"
+        },
+        isToday(value) {
+          return getToday(value);
+        }
+      }
+    },
   },
   {
     timestamps: false,
@@ -32,17 +50,12 @@ module.exports = (sequelize, DataTypes) => {
   });
   Loans.associate = function(models) {
     // associations can be defined here
-    //Loans belongTo might not be needed because the association is happening in the books model.
     Loans.belongsTo(models.Books, {
       foreignKey: 'book_id'
     });
     Loans.belongsTo(models.Patrons, {
       foreignKey: 'patron_id'
     });
-  };
-//new format in sequelize v4 for instance methods
-  Loans.prototype.loanedOn = function() {
-     return dateFormat(this.loaned_on, "yyyy-mm-dd");
   };
 
   return Loans;

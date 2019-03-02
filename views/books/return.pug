@@ -2,8 +2,9 @@ extends ../layout
 
 block content
   h1 Patron: Return Book
+  include ../errors
   each loan in loans
-    p #[strong Book Title:] #[= book.title] 
+    p #[strong Book Title:] #[= loan.Book.title] 
 
     p #[strong Name:] #[= loan.Patron.first_name] 
 
@@ -11,9 +12,9 @@ block content
     
     p #[strong Return By:] #[= loan.return_by]
 
-  form(action="/books/" + book.id + "/return?_method=PUT", method="post")
-    p
-      label(for='returned_on') Returned on:
-      input#returned_on(type='text' name='returned_on' value=returnOnDate)
-    p
-      input(type='submit' value='Return Book')
+    form(action="/books/" + loan.id + "/return?_method=PUT", method="post")
+      p
+        label(for='returned_on') Returned on:
+        input#returned_on(type='text' name='returned_on' value=returnOnDate)
+      p
+        input(type='submit' value='Return Book')

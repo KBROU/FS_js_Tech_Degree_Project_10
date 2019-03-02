@@ -92,3 +92,57 @@ input {
 input[type=text], select {
   margin-left: 10px;
 }
+/*Pagination CSS Code Added for pagination exceeds part of the project*/
+.pagination{
+  margin: 40px 0 0 0;
+  text-align: left;
+}
+
+.pagination li{
+  display: inline;
+}
+
+.pagination li a{
+  border: 1px solid #eaeaea;
+  border-radius: 5px;
+  padding: 3px 8px;
+  text-decoration: none;
+  color: #4ba6c3;
+}
+
+.pagination li a.active,
+.pagination li a:hover{
+  background-color: #4ba6c3;
+  color: #fff;
+}
+
+.search div{
+  padding: 5px 20px 10px 10px;
+  margin-left: 0px;
+  text-align: left;
+  display: inline;
+}
+
+.search label {
+  min-width: 0px;
+}
+
+.search form {
+  padding: 5px 20px 15px 0px;
+  text-align: left;
+  margin-left: 0px;
+}
+
+.search input {
+  margin-left: 0px;
+  padding: 10px;
+  font-family: "Lucida Grande", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  border-radius: 2px;
+  border-color: #E7E7E7;
+  text-align: left;
+}
+
+.search form a.button, input[type=submit] {
+  margin-left: 14px;
+}

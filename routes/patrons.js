@@ -4,15 +4,55 @@ const sequelize = require('sequelize');
 const Loans = require('../models').Loans;
 const Books = require('../models').Books;
 const Patrons = require('../models').Patrons;
-
+//Sequelize variable to perform operations
+const Op = sequelize.Op;
+//Variable and function for pagination
+let offsetNum = 0;
+function offsetResult (pageNumber) {
+  if (pageNumber === 1){
+    return offsetNum = 0;
+  } else {
+    return offsetNum = (pageNumber - 1) * 5;
+  }
+}
 
 /* GET patrons list. */
-router.get('/', function(req, res, next) {
-  Patrons.findAll({order: [["createdAt", "DESC"]]})
-    .then(function(patrons){
-      res.render("patrons/index", { patrons });
+router.get('/index/:page', function(req, res, next) {
+  let pageNumber = req.params.page;
+  let urlTest = 'index';
+  Patrons.findAll({
+  }).then(function(patrons){
+    let patronCount = patrons.length;
+    let pageCount = Math.ceil(patronCount/5);
+    offsetResult(pageNumber);
+    Patrons.findAll({
+      order: [["createdAt", "DESC"]],
+      limit: 5,
+      offset: offsetNum
+    }).then(function(patronsLim){
+      res.render("patrons/index", {urlTest, patronsLim, pageCount});
     })
-    .catch(function(error){
+  }).catch(function(error){
+      res.send(500, error);
+   });
+});
+
+/*Post Patron Search*/
+router.post('/search/:page', function(req, res, next) {
+  Patrons.findAll({
+    where: {
+      [Op.or]: {
+        first_name: {[Op.like]: `%${req.body.search}%`},
+        last_name: {[Op.like]: `%${req.body.search}%`},
+        address: {[Op.like]: `%${req.body.search}%`},
+        email: {[Op.like]: `%${req.body.search}%`},
+        library_id: {[Op.like]: `%${req.body.search}%`},
+        zip_code: {[Op.like]: `%${req.body.search}%`}
+      }
+    }
+  }).then(function(patronsLim){
+    res.render("patrons/index", {patronsLim});
+  }).catch(function(error){
       res.send(500, error);
     });
 });
@@ -20,15 +60,15 @@ router.get('/', function(req, res, next) {
 /* POST create patron entry. */
 router.post('/', function(req, res, next) {
   Patrons.create(req.body).then(function() {
-    res.redirect("/patrons");
+    res.redirect("/patrons/index/1");
   }).catch(function(error){
       if(error.name === "SequelizeValidationError") {
-        res.render("patrons/", {article: Patrons.build(req.body), errors: error.errors, title: "New Patron"})
+        res.render("patrons/index", {article: Patrons.build(req.body), errors: error.errors, title: "New Patron"})
       } else {
         throw error;
       }
   }).catch(function(error){
-      res.send(500, error);
+      res.status(500).send(error);
    });
 });
 
@@ -59,6 +99,7 @@ router.get("/:id", function(req, res, next){
 router.put("/:id", function(req, res, next){
   Patrons.findById(req.params.id).then(function(patron){
     if(patron) {
+      console.log(patron);
       return patron.update(req.body);
     } else {
       res.send(404);
@@ -67,9 +108,7 @@ router.put("/:id", function(req, res, next){
     res.redirect("/patrons/" + patron.id);
   }).catch(function(error){
       if(error.name === "SequelizeValidationError") {
-        var article = Patrons.build(req.body);
-        patron.id = req.params.id;
-        res.render("patron/:id", {patron, errors: error.errors})
+        res.render("patrons/", {patron, errors: error.errors})
       } else {
         throw error;
       }

@@ -12,7 +12,7 @@ form
         option(value=patron.id name= 'patron')= patron.first_name + ' ' + patron.last_name
   p
     label(for='loaned_on') Loaned on:
-    input#loaned_on(type='text' name='loaned_on' placeholder='Todays Date' value=loanDate)
+    input#loaned_on(type='text' name='loaned_on' placeholder='Todays Date' value=currentDate)
   p
     label(for='return_by') Return by:
     input#return_by(type='text' name='return_by' value=returnDate)

@@ -2,21 +2,14 @@ extends ../layout
 
 block content
   h1= book.title
-  form
-    p
-      label(for='title') Title
-      input#title(type='text' value=book.title)
-    p
-      label(for='author') Author
-      input#author(type='text' value=book.author)
-    p
-      label(for='genre') Genre
-      input#genre(type='text' value=book.genre)
-    p
-      label(for='first_published') First Published
-      input#first_published(type='text' value=book.first_published)
+  
+  include ../errors
+  
+  form(action="/books/" + book.id + "?_method=PUT", method="post")
+    include form
     p
       input(type='submit' value='Update')
+        
   h2 Loan History
   table
     thead
@@ -27,14 +20,60 @@ block content
         th Return by 
         th Returned on
         th Action
-    tbody
-      tr
-        td
-          a(href='book_detail.html') A Brief History of Time
-        td
-          a(href='patron_detail.html') Andrew Chalkley
-        td 2015-12-12
-        td 2015-12-19
-        td
-        td
-          a.button(href='/books/' + book.id + '/return/') Return Book
+    each loan in loans
+      tbody
+        tr
+          td
+            a(href='book_detail.html')= book.title
+          td
+            a(href='patron_detail.html')= loan.Patron.first_name + loan.Patron.last_name
+          td= loan.loaned_on
+          td= loan.return_by
+          td= loan.returned_on
+          td
+            if(loan.returned_on == NULL)
+              a.button(href='/books/' + book.id + '/return/') Return Book
+
+
+
+
+//- block content
+//-   h1= loans[0].Book.title
+//-   form
+//-     p
+//-       label(for='title') Title
+//-       input#title(type='text' value=loans[0].Book.title)
+//-     p
+//-       label(for='author') Author
+//-       input#author(type='text' value=loans[0].Book.author)
+//-     p
+//-       label(for='genre') Genre
+//-       input#genre(type='text' value=loans[0].Book.genre)
+//-     p
+//-       label(for='first_published') First Published
+//-       input#first_published(type='text' value=loans[0].Book.first_published)
+//-     p
+//-       input(type='submit' value='Update')
+//-   h2 Loan History
+//-   table
+//-     thead
+//-       tr
+//-         th Book
+//-         th Patron 
+//-         th Loaned on
+//-         th Return by 
+//-         th Returned on
+//-         th Action
+//-     each loan in loans
+//-       tbody
+//-         tr
+//-           td
+//-             a(href='book_detail.html')= loan.Book.title
+//-           td
+//-             a(href='patron_detail.html')= loan.Patron.first_name + loan.Patron.last_name
+//-           td= loan.loaned_on
+//-           td= loan.return_by
+//-           td= loan.returned_on
+//-           td
+//-             if(loan.returned_on == NULL)
+//-               a.button(href='/books/' + loan.Book.id + '/return/') Return Book

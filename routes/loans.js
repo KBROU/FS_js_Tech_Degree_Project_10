@@ -1,17 +1,19 @@
 var express = require('express');
 var router = express.Router();
 const sequelize = require('sequelize');
-//var books = require('../routes/books');
+//Model variables
 const Loans = require('../models').Loans;
 const Books = require('../models').Books;
 const Patrons = require('../models').Patrons;
+//Date Variables to prefill the form
+const returnDate = new Date(new Date().getTime() + 604800000).toLocaleDateString();
+// const currentDate = (new Date()).toLocaleDateString('sq-AL',
+// {year: "numeric", month: "2-digit", day: "numeric"});
+const currentDate = (new Date()).toLocaleDateString();
+//Sequelize variable to perform operations
+const Op = sequelize.Op;
 
 /* GET loans listing. */
-
-// router.get('/', function(req, res, next) {
-//   res.render('loans/index');
-// });
-
 router.get('/', function(req, res, next) {
   Loans.findAll({include: [{model: Books}, {model: Patrons}] })
     .then(function(loans){
@@ -22,27 +24,65 @@ router.get('/', function(req, res, next) {
     });
 });
 
+/*GET Checked Out Book Loans*/
+router.get('/checked', function(req, res, next) {
+  Loans.findAll({where: {returned_on: null}, include: [{model: Books}, {model: Patrons}] })
+    .then(function(loans){
+      res.render("loans/checked", { loans });
+    })
+    .catch(function(error){
+      res.send(500, error);
+    });
+});
+
+/*GET Overdue Book Loans*/
+router.get('/overdue', function(req, res, next) {
+  Loans.findAll({
+    where: {
+      returned_on: null,
+      return_by: {
+        [Op.lt]: currentDate
+      }
+    },
+    include: [{model: Books}, {model: Patrons}]
+  })
+    .then(function(loans){
+      res.render("loans/overdue", { loans });
+    })
+    .catch(function(error){
+      res.send(500, error);
+    });
+});
+
 /* POST create loan entry. */
 router.post('/', function(req, res, next) {
-  Loans.create(req.body).then(function() {
+  Loans.create(req.body).then(function(loan) {
     res.redirect("/loans");
   }).catch(function(error){
       if(error.name === "SequelizeValidationError") {
-        res.render("loans/", {article: Loans.build(req.body), errors: error.errors, title: "New Loan"})
+        Books.findAll({
+          order: [["createdAt", "DESC"]]
+        })
+        .then(function(books){
+          Patrons.findAll({
+            order: [["createdAt", "DESC"]]
+          })
+          .then(function(patrons){
+            res.render("loans/new", {loan: Loans.build(req.body), returnDate, currentDate, books, patrons, title: "New Loan", errors: error.errors});
+          })
+        })
       } else {
         throw error;
       }
-  }).catch(function(error){
-      res.send(500, error);
-   });
+  }).catch(function(error) {
+      res.send(500,error);
+    });
 });
 
 
 
 /* Create a new loan form. */
 router.get('/new', function(req, res, next) {
-  const returnDate = new Date(new Date().getTime() + 604800000).toLocaleDateString();
-  const loanDate = (new Date()).toLocaleDateString();
   Books.findAll({
     order: [["createdAt", "DESC"]]
   })
@@ -51,27 +91,11 @@ router.get('/new', function(req, res, next) {
       order: [["createdAt", "DESC"]]
     })
     .then(function(patrons){
-      res.render("loans/new", {loan: {}, returnDate, loanDate, books, patrons, title: "New Loan"});
+      res.render("loans/new", {loan: {}, returnDate, currentDate, books, patrons, title: "New Loan"});
     })
   }).catch(function(error){
         res.send(500, error);
     });
 });
-
-
-//
-//
-// /* GET return book. */
-// router.get("/:id/return", function(req, res, next){
-//   Loans.findById(req.params.id).then(function(book){
-//     if(book) {
-//       res.render("books/return", {book: book, title: book.title});
-//     } else {
-//       res.send(404);
-//     }
-//   }).catch(function(error){
-//       res.send(500, error);
-//    });
-// });
 
 module.exports = router;

@@ -5,7 +5,11 @@ module.exports = (sequelize, DataTypes) => {
     author: DataTypes.STRING,
     genre: DataTypes.STRING,
     first_published: DataTypes.INTEGER
-  }, {});
+  }, {
+    timestamps: false,
+    createdAt: false,
+    updatedAt: false
+  });
   Books.associate = function(models) {
     // associations can be defined here
     //Books is a source Model and Loans is target model

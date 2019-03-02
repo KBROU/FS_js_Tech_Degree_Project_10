@@ -10,23 +10,18 @@ module.exports = {
       },
       book_id: {
         type: Sequelize.INTEGER,
-        // not sure if references are needed
-        // references: {
-        //   model: 'Books',
-        //   key: 'id',
-        // },
       },
       patron_id: {
         type: Sequelize.INTEGER
       },
       loaned_on: {
-        type: Sequelize.DATE
+        type: Sequelize.DATEONLY
       },
       return_by: {
-        type: Sequelize.DATE
+        type: Sequelize.DATEONLY
       },
       returned_on: {
-        type: Sequelize.DATE
+        type: Sequelize.DATEONLY
       },
       createdAt: {
         allowNull: true,
