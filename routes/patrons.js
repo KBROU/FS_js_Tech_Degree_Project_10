@@ -59,11 +59,11 @@ router.post('/search/:page', function(req, res, next) {
 
 /* POST create patron entry. */
 router.post('/', function(req, res, next) {
-  Patrons.create(req.body).then(function() {
+  Patrons.create(req.body).then(function(patron) {
     res.redirect("/patrons/index/1");
   }).catch(function(error){
       if(error.name === "SequelizeValidationError") {
-        res.render("patrons/index", {article: Patrons.build(req.body), errors: error.errors, title: "New Patron"})
+        res.render("patrons/new", {patron: Patrons.build(req.body), errors: error.errors, title: "New Patron"})
       } else {
         throw error;
       }
@@ -99,16 +99,26 @@ router.get("/:id", function(req, res, next){
 router.put("/:id", function(req, res, next){
   Patrons.findById(req.params.id).then(function(patron){
     if(patron) {
-      console.log(patron);
       return patron.update(req.body);
     } else {
       res.send(404);
     }
   }).then(function(patron){
-    res.redirect("/patrons/" + patron.id);
+    res.redirect("/patrons/index/1");
   }).catch(function(error){
       if(error.name === "SequelizeValidationError") {
-        res.render("patrons/", {patron, errors: error.errors})
+        Patrons.findById(req.params.id)
+          .then(function(patron){
+            Loans.findAll({
+              where: {patron_id: req.params.id},
+              include: [{model: Books}]
+            })
+            .then(function(loans){
+              res.render("patrons/detail", {
+                patron, loans, title: patron.title, errors: error.errors
+              });
+            })
+        })
       } else {
         throw error;
       }
@@ -116,5 +126,6 @@ router.put("/:id", function(req, res, next){
       res.send(500, error);
    });
 });
+
 
 module.exports = router;

@@ -98,7 +98,7 @@ router.post('/', function(req, res, next) {
     res.redirect("/books/index/1");
   }).catch(function(error){
       if(error.name === "SequelizeValidationError") {
-        res.render("books/new", {article: Books.build(req.body), errors: error.errors, title: "New Book"})
+          res.render("books/new", {book: Books.build(req.body), title: "New Book", errors: error.errors});
       } else {
         throw error;
       }
@@ -133,16 +133,24 @@ router.get("/:id", function(req, res, next){
 router.put("/:id", function(req, res, next){
   Books.findById(req.params.id).then(function(book){
     if(book) {
-      console.log(book);
       return book.update(req.body);
     } else {
       res.send(404);
     }
   }).then(function(book){
-    res.redirect("/books/" + book.id);
+    res.redirect("/books/index/1");
   }).catch(function(error){
       if(error.name === "SequelizeValidationError") {
-        res.render("books/", {book, errors: error.errors})
+        Books.findById(req.params.id)
+          .then(function(book){
+            Loans.findAll({
+              where: {book_id: req.params.id},
+              include: [{model: Patrons}]
+            })
+          .then(function(loans){
+              res.render("books/detail", {loans, book, errors: error.errors});
+          })
+        })
       } else {
         throw error;
       }
@@ -150,6 +158,7 @@ router.put("/:id", function(req, res, next){
       res.send(500, error);
    });
 });
+
 
 /*GET Returned Book*/
 router.get("/:id/return", function(req, res, next){
