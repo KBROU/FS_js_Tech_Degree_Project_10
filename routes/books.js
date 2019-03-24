@@ -6,7 +6,8 @@ const Books = require('../models').Books;
 const Loans = require('../models').Loans;
 const Patrons = require('../models').Patrons;
 //Variable for return date
-const returnOnDate = (new Date()).toLocaleDateString();
+const returnOnDate = (new Date()).toLocaleDateString('sq-AL',
+{year: "numeric", month: "2-digit", day: "2-digit"});
 //Sequelize variable to perform operations
 const Op = sequelize.Op;
 //Variable and function for pagination
