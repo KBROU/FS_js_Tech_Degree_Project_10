@@ -1,14 +1,7 @@
 'use strict';
+
 const Sequelize = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  let getToday = (value) => {
-    const localDateFormat = (new Date()).toLocaleDateString('sq-AL',
-    {year: "numeric", month: "2-digit", day: "2-digit"});
-
-    if(value != localDateFormat) {
-      throw new Error ("Today's Date is required" + " " + localDateFormat)
-    }
-  };
   const Loans = sequelize.define('Loans', {
     book_id: DataTypes.INTEGER,
     patron_id: DataTypes.INTEGER,
@@ -18,8 +11,8 @@ module.exports = (sequelize, DataTypes) => {
         isDate: {
           msg: "Date format is required"
         },
-        isToday(value) {
-          return getToday(value);
+        notEmpty: {
+          msg: "Please Input Date"
         }
       }
     },
@@ -37,8 +30,8 @@ module.exports = (sequelize, DataTypes) => {
         isDate: {
           msg: "Date format is required"
         },
-        isToday(value) {
-          return getToday(value);
+        notEmpty: {
+          msg: "Please Input Date"
         }
       }
     },
