@@ -1,16 +1,15 @@
 var express = require('express');
 var router = express.Router();
 const sequelize = require('sequelize');
+const moment = require('moment');
 //Model variables
 const Loans = require('../models').Loans;
 const Books = require('../models').Books;
 const Patrons = require('../models').Patrons;
 //Date Variables to prefill the form
-const returnDate = new Date(new Date().getTime() + 604800000).toLocaleDateString('sq-AL',
-{year: "numeric", month: "2-digit", day: "2-digit"});
- const currentDate = (new Date()).toLocaleDateString('sq-AL',
- {year: "numeric", month: "2-digit", day: "2-digit"});
-//const currentDate = (new Date()).toLocaleDateString();
+const currentDate = moment().format('YYYY-MM-DD');
+const returnDate = moment().add(7, 'days').format('YYYY-MM-DD');
+
 //Sequelize variable to perform operations
 const Op = sequelize.Op;
 
